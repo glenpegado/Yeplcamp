@@ -19,19 +19,19 @@ let campgroundSchema = new mongoose.Schema({
 
 let Campground = mongoose.model('Campground', campgroundSchema)
 
-Campground.create(
-    {
-        name: "Salmon creek", 
-        image: "https://cdn.vox-cdn.com/thumbor/-JoPdcgAuLTUsWiDZ62CX4wb33k=/0x0:5225x3479/1200x800/filters:focal(2195x1322:3031x2158)/cdn.vox-cdn.com/uploads/chorus_image/image/54137643/camping_tents.0.jpg"
+// Campground.create(
+//     {
+//         name: "Salmon creek", 
+//         image: "https://cdn.vox-cdn.com/thumbor/-JoPdcgAuLTUsWiDZ62CX4wb33k=/0x0:5225x3479/1200x800/filters:focal(2195x1322:3031x2158)/cdn.vox-cdn.com/uploads/chorus_image/image/54137643/camping_tents.0.jpg"
     
-    }, (err, campground)=>{
-        if(err){
-            console.log(err)
-        } else {
-            console.log('NEWLY CREATED CAMPGROUND')
-            console.log(campground)
-        }
-    })
+//     }, (err, campground)=>{
+//         if(err){
+//             console.log(err)
+//         } else {
+//             console.log('NEWLY CREATED CAMPGROUND')
+//             console.log(campground)
+//         }
+//     })
 
 let campgrounds = [
     {name: "Salmon creek", image: "https://cdn.vox-cdn.com/thumbor/-JoPdcgAuLTUsWiDZ62CX4wb33k=/0x0:5225x3479/1200x800/filters:focal(2195x1322:3031x2158)/cdn.vox-cdn.com/uploads/chorus_image/image/54137643/camping_tents.0.jpg"},
@@ -53,7 +53,14 @@ app.get('/', (req, res) => {
 })
 
 app.get('/campgrounds', (req, res) =>{
-    res.render('campgrounds', {campgrounds: campgrounds})
+    // Get all campgrounds from DB
+    Campground.find({}, (err, allCampgrounds)=>{
+        if(err){
+            console.log(err)
+        } else {
+            res.render('campgrounds', {campgrounds: allCampgrounds})
+        }
+    })
 })
 
 app.post('/campgrounds', (req, res) => {
@@ -61,10 +68,17 @@ app.post('/campgrounds', (req, res) => {
     let name = req.body.name;
     let image = req.body.image;
     let newCampground = {name: name, image: image}
-    campgrounds.push(newCampground)
+    // campgrounds.push(newCampground)
 
-    //redirect back to campgrounds page
-    res.redirect('/campgrounds')
+    //create a new campground and save to DB
+    Campground.create(newCampground, (err, newlyCreated)=>{
+        if(err){
+            console.log(err)
+        } else {
+            //redirect back to campgrounds page
+            res.redirect('/campgrounds')
+        }
+    })
 })
 
 // app.delete('/campgrounds', (req, res)=>{
@@ -75,4 +89,4 @@ app.get('/campgrounds/new', (req, res) =>{
     res.render('new.ejs')
 })
 
-app.listen(port, () => console.log(`The YelpCamp server is listening on ${port}`))
+app.listen(port, () => console.log(`The YelpCamp server has started`))
